@@ -18,22 +18,21 @@ ENV DEBIAN_FRONTEND="noninteractive"
 # Update system and install wget
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        curl=7.68.0-1ubuntu2.13 \
-        wget=1.20.3-1ubuntu2 \
-        ffmpeg=7:4.2.7-0ubuntu0.1 \
-        libpython3.8=3.8.10-0ubuntu1~20.04.5 \
-        nodejs=10.19.0~dfsg-3ubuntu1 \
-        npm=6.14.4+ds-1ubuntu2 \
-        pandoc=2.5-3build2 \
-        ruby=1:2.7+1 \
-        software-properties-common=0.99.9.8 && \
+        curl \
+        wget \
+        ffmpeg \
+        libpython3.8 \
+        npm \
+        pandoc \
+        ruby \
+        software-properties-common && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Install latest git for github actions
 RUN add-apt-repository ppa:git-core/ppa &&\
     apt-get update && \
-    apt-get install --no-install-recommends -y git=1:2.38.1-0ppa1~ubuntu20.04.1 &&\
+    apt-get install --no-install-recommends -y git &&\
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -47,6 +46,13 @@ RUN curl https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh >
     rm ~/miniconda.sh
 ENV PATH "/home/user/conda/bin:${PATH}"
 RUN conda install python=3.8
+
+# Prettier requires atleast nodejs 10 and actions/checkout requires nodejs 16
+RUN curl -sL https://deb.nodesource.com/setup_current.x > nodesetup.sh && \
+    bash - nodesetup.sh && \
+    apt-get install --no-install-recommends -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 
 #########################################################

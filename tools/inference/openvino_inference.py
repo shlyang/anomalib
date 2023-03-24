@@ -29,7 +29,7 @@ def get_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument("--config", type=Path, required=True, help="Path to a config file")
     parser.add_argument("--weights", type=Path, required=True, help="Path to model weights")
-    parser.add_argument("--meta_data", type=Path, required=True, help="Path to a JSON file containing the metadata.")
+    parser.add_argument("--metadata", type=Path, required=True, help="Path to a JSON file containing the metadata.")
     parser.add_argument("--input", type=Path, required=True, help="Path to an image to infer.")
     parser.add_argument("--output", type=Path, required=False, help="Path to save the output image.")
     parser.add_argument(
@@ -38,7 +38,15 @@ def get_args() -> Namespace:
         required=False,
         help="Task type.",
         default="classification",
-        choices=["classification", "segmentation"],
+        choices=["classification", "detection", "segmentation"],
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        required=False,
+        help="Hardware device on which the model will be deployed",
+        default="CPU",
+        choices=["CPU", "GPU", "VPU"],
     )
     parser.add_argument(
         "--visualization_mode",
@@ -71,7 +79,7 @@ def infer() -> None:
     args = get_args()
 
     # Get the inferencer.
-    inferencer = OpenVINOInferencer(config=args.config, path=args.weights, meta_data_path=args.meta_data)
+    inferencer = OpenVINOInferencer(path=args.weights, metadata_path=args.metadata, device=args.device)
     visualizer = Visualizer(mode=args.visualization_mode, task=args.task)
 
     filenames = get_image_filenames(path=args.input)
@@ -86,7 +94,7 @@ def infer() -> None:
             )
 
         if args.output:
-            file_path = generate_output_image_filename(input_path=args.input, output_path=args.output)
+            file_path = generate_output_image_filename(input_path=filename, output_path=args.output)
             visualizer.save(file_path=file_path, image=output)
 
         # Show the image in case the flag is set by the user.

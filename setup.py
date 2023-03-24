@@ -3,14 +3,16 @@
 # Copyright (C) 2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import List
+from types import ModuleType
 
 from setuptools import find_packages, setup
 
 
-def load_module(name: str = "anomalib/__init__.py"):
+def load_module(name: str = "src/anomalib/__init__.py") -> ModuleType:
     """Load Python Module.
 
     Args:
@@ -43,18 +45,18 @@ def get_version() -> str:
     Returns:
         str: `anomalib` version.
     """
-    anomalib = load_module(name="anomalib/__init__.py")
+    anomalib = load_module(name="src/anomalib/__init__.py")
     version = anomalib.__version__
     return version
 
 
-def get_required_packages(requirement_files: List[str]) -> List[str]:
+def get_required_packages(requirement_files: list[str]) -> list[str]:
     """Get packages from requirements.txt file.
 
     This function returns list of required packages from requirement files.
 
     Args:
-        requirement_files (List[str]): txt files that contains list of required
+        requirement_files (list[str]): txt files that contains list of required
             packages.
 
     Example:
@@ -62,13 +64,13 @@ def get_required_packages(requirement_files: List[str]) -> List[str]:
         ['onnx>=1.8.1', 'networkx~=2.5', 'openvino-dev==2021.4.1', ...]
 
     Returns:
-        List[str]: List of required packages
+        list[str]: List of required packages
     """
 
-    required_packages: List[str] = []
+    required_packages: list[str] = []
 
     for requirement_file in requirement_files:
-        with open(f"requirements/{requirement_file}.txt", "r", encoding="utf8") as file:
+        with open(f"requirements/{requirement_file}.txt", encoding="utf8") as file:
             for line in file:
                 package = line.strip()
                 if package and not package.startswith(("#", "-f")):
@@ -81,8 +83,9 @@ VERSION = get_version()
 LONG_DESCRIPTION = (Path(__file__).parent / "README.md").read_text(encoding="utf8")
 INSTALL_REQUIRES = get_required_packages(requirement_files=["base"])
 EXTRAS_REQUIRE = {
+    "extra": get_required_packages(requirement_files=["extras"]),
+    "full": get_required_packages(requirement_files=["docs", "openvino", "extras"]),
     "openvino": get_required_packages(requirement_files=["openvino"]),
-    "full": get_required_packages(requirement_files=["docs", "openvino"]),
 }
 
 
@@ -99,7 +102,8 @@ setup(
     'Licensed under the Apache License, Version 2.0 (the "License")'
     "See LICENSE file for more details.",
     python_requires=">=3.7",
-    packages=find_packages(exclude=("tests",)),
+    package_dir={"": "src"},
+    packages=find_packages(where="src", include=["anomalib", "anomalib.*"]),
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_REQUIRE,
     package_data={"": ["config.yaml"]},

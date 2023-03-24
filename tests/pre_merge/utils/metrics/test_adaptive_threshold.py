@@ -37,8 +37,9 @@ def test_manual_threshold():
     Test if the manual threshold gets used in the F1 score computation when
     adaptive thresholding is disabled and no normalization is used.
     """
-    config = get_test_configurable_parameters(config_path="anomalib/models/padim/config.yaml")
+    config = get_test_configurable_parameters(config_path="src/anomalib/models/padim/config.yaml")
 
+    config.dataset.num_workers = 0
     config.model.normalization_method = "none"
     config.metrics.threshold.method = "manual"
     config.trainer.fast_dev_run = True
