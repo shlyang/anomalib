@@ -104,5 +104,5 @@ def get_model(config: DictConfig | ListConfig) -> AnomalyModule:
 
     if "init_weights" in config.keys() and config.init_weights:
         model.load_state_dict(load(os.path.join(config.project.path, config.init_weights))["state_dict"], strict=False)
-
+        print('***init weights!***')
     return model

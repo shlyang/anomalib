@@ -106,6 +106,8 @@ class FastflowModel(nn.Module):
 
     def __init__(
         self,
+        load_supcon: str,
+        load_moco: str,
         input_size: tuple[int, int],
         backbone: str,
         pre_trained: bool = True,
@@ -128,6 +130,23 @@ class FastflowModel(nn.Module):
                 features_only=True,
                 out_indices=[1, 2, 3],
             )
+            if load_supcon != '':
+                ld = torch.load(load_supcon)
+                tmp = ld['model']
+                new = {}
+                for k, v in tmp.items():
+                    nk = '.'.join(k.split('.')[1:])
+                    new[nk] = v
+                self.feature_extractor.load_state_dict(new, strict=False)
+            elif load_moco != '':
+                ld = torch.load(load_moco)
+                tmp = ld['state_dict']
+                new = {}
+                for k, v in tmp.items():
+                    nk = '.'.join(k.split('.')[2:])
+                    new[nk] = v
+                self.feature_extractor.load_state_dict(new, strict=False)
+                print('***MoCo weights loaded!***')
             channels = self.feature_extractor.feature_info.channels()
             scales = self.feature_extractor.feature_info.reduction()
 

@@ -30,6 +30,8 @@ class Fastflow(AnomalyModule):
 
     def __init__(
         self,
+        load_supcon: str,
+        load_moco: str,
         input_size: tuple[int, int],
         backbone: str,
         pre_trained: bool = True,
@@ -40,6 +42,8 @@ class Fastflow(AnomalyModule):
         super().__init__()
 
         self.model = FastflowModel(
+            load_supcon=load_supcon,
+            load_moco=load_moco,
             input_size=input_size,
             backbone=backbone,
             pre_trained=pre_trained,
@@ -91,6 +95,8 @@ class FastflowLightning(Fastflow):
 
     def __init__(self, hparams: DictConfig | ListConfig) -> None:
         super().__init__(
+            load_supcon=hparams.model.load_supcon,
+            load_moco=hparams.model.load_moco,
             input_size=hparams.model.input_size,
             backbone=hparams.model.backbone,
             pre_trained=hparams.model.pre_trained,
